@@ -8,4 +8,8 @@ object Resources {
     object Image {
         const val LOGO = "/logo.svg"
     }
+
+    object Font {
+        const val ARIAL = "Arial"
+    }
 }
