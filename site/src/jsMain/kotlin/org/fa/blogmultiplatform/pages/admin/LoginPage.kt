@@ -27,7 +27,10 @@ import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Input
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.silk.components.navigation.Link
+import org.jetbrains.compose.web.dom.Footer
+import org.jetbrains.compose.web.dom.Text
 
 @Page("login")
 @Composable
@@ -58,6 +61,7 @@ fun LoginPage() {
         modifier = Modifier.fillMaxSize().background(BlogColors.BACKGROUND.rgb), contentAlignment = Alignment.Center
     ) {
         Column(
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
         ) {
             VerticalDivider(modifier = dividerStyle.then(Modifier.height(80.px)))
@@ -95,7 +99,7 @@ fun LoginPage() {
 
             VerticalDivider(modifier = dividerStyle.then(Modifier.height(20.px)))
 
-            Link(modifier = textStyle.then(Modifier.color(BlogColors.LT_BLACK.rgb)), path = "", text = "Reset My Password")
+            Link(modifier = textStyle.then(Modifier.color(BlogColors.LT_BLACK.rgb)), path = "reset-my-password", text = "Reset My Password")
         }
     }
 }
