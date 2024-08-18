@@ -28,6 +28,8 @@ import org.jetbrains.compose.web.dom.Input
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import com.varabyte.kobweb.compose.foundation.layout.Row
+import com.varabyte.kobweb.core.rememberPageContext
+import com.varabyte.kobweb.silk.components.forms.Checkbox
 import com.varabyte.kobweb.silk.components.navigation.Link
 import org.jetbrains.compose.web.dom.Footer
 import org.jetbrains.compose.web.dom.Text
@@ -35,6 +37,12 @@ import org.jetbrains.compose.web.dom.Text
 @Page("login")
 @Composable
 fun LoginPage() {
+    val pageContext = rememberPageContext()
+
+    var isRememberMe by remember {
+        mutableStateOf(false)
+    }
+
     var isFocusedSignIn by remember {
         mutableStateOf(false)
     }
@@ -55,13 +63,13 @@ fun LoginPage() {
         buttonStyle.toModifier().width(350.px).height(52.px).borderRadius(4.px).fontFamily(Resources.Font.ARIAL)
             .fontSize(15.px).cursor(Cursor.Pointer)
 
-    val textStyle = Modifier.fontFamily(Resources.Font.ARIAL).fontSize(15.px)
+    val textStyle = Modifier.fontFamily(Resources.Font.ARIAL).fontSize(15.px).color(BlogColors.LT_BLACK.rgb)
 
     Box(
         modifier = Modifier.fillMaxSize().background(BlogColors.BACKGROUND.rgb), contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.padding(bottom = 150.px),
             verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
         ) {
             VerticalDivider(modifier = dividerStyle.then(Modifier.height(80.px)))
@@ -71,7 +79,7 @@ fun LoginPage() {
             VerticalDivider(modifier = dividerStyle.then(Modifier.height(50.px)))
 
             Input(type = InputType.Email, attrs = inputStyle.toAttrs {
-                attr("placeholder", "Enter an email")
+                attr("placeholder", "Enter your email")
             })
 
             if (isUserExist) {
@@ -81,15 +89,23 @@ fun LoginPage() {
             }
 
             Input(type = InputType.Password, attrs = inputStyle.toAttrs {
-                attr("placeholder", "Enter a password")
+                attr("placeholder", "Enter your password")
             })
 
-            VerticalDivider(modifier = dividerStyle.then(Modifier.height(20.px)))
+            VerticalDivider(modifier = dividerStyle.then(Modifier.height(12.px)))
+
+            Checkbox(checked = isRememberMe, onCheckedChange = {
+                isRememberMe = it
+            }, content = {
+                SpanText(modifier = textStyle, text = "Remember Me")
+            })
+
+            VerticalDivider(modifier = dividerStyle.then(Modifier.height(12.px)))
 
             Button(
                 attrs = buttonStyle.then(Modifier.id(Resources.ID.SIGN_IN).onMouseOver {
                     isFocusedSignIn = true
-                }.onMouseOut { isFocusedSignIn = false }.onClick { isUserExist = true }).toAttrs()
+                }.onMouseOut { isFocusedSignIn = false }.onClick { isUserExist = !isUserExist }).toAttrs()
             ) {
                 SpanText(
                     modifier = textStyle.then(Modifier.color(if (isFocusedSignIn) BlogColors.PRIMARY.rgb else BlogColors.WHITE.rgb)),
@@ -99,7 +115,7 @@ fun LoginPage() {
 
             VerticalDivider(modifier = dividerStyle.then(Modifier.height(20.px)))
 
-            Link(modifier = textStyle.then(Modifier.color(BlogColors.LT_BLACK.rgb)), path = "reset-my-password", text = "Reset My Password")
+            Link(modifier = textStyle, path = "reset-my-password", text = "Reset My Password")
         }
     }
 }
