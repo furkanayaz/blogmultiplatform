@@ -1,4 +1,4 @@
-package org.fa.blogmultiplatform.services.user
+package org.fa.blogmultiplatform.api
 
 import com.varabyte.kobweb.api.Api
 import com.varabyte.kobweb.api.ApiContext
@@ -9,10 +9,10 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.fa.blogmultiplatform.models.User
 import org.fa.blogmultiplatform.repositories.user.UserRepoImpl
-import org.fa.blogmultiplatform.util.Response
+import org.fa.blogmultiplatform.util.ResponseDTO
 
-@Api("create-user")
-fun createUser(context: ApiContext) {
+@Api("sign-up")
+fun signUp(context: ApiContext) {
     if (context.req.method == HttpMethod.POST) {
         val userRepo = context.data.getValue(UserRepoImpl::class.java)
         val req = context.req.body?.let {
@@ -22,7 +22,7 @@ fun createUser(context: ApiContext) {
 
             context.logger.error(message)
             context.res.status = 400
-            context.res.setBodyText(Json.encodeToString(Response(
+            context.res.setBodyText(Json.encodeToString(ResponseDTO(
                 isSuccess = false,
                 status = 400,
                 data = null,
@@ -31,9 +31,9 @@ fun createUser(context: ApiContext) {
 
             throw IllegalArgumentException(message)
         }
-        userRepo.createUser(req)
+        userRepo.signUpUser(req)
         context.res.status = 200
-        context.res.setBodyText(Json.encodeToString(Response(
+        context.res.setBodyText(Json.encodeToString(ResponseDTO(
             isSuccess = true,
             status = 200,
             data = true,
@@ -43,7 +43,7 @@ fun createUser(context: ApiContext) {
         val message = "${context.req.method.name} is not supported."
 
         context.logger.error(message)
-        context.res.setBodyText(Json.encodeToString(Response(
+        context.res.setBodyText(Json.encodeToString(ResponseDTO(
             isSuccess = false,
             status = 405,
             data = null,

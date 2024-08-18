@@ -9,7 +9,7 @@ object BlogDB {
     private var mClient: MongoClient? = null
     private var mDatabase: MongoDatabase? = null
 
-    private const val CONN_URL = "mongodb://localhost:27017"
+    private const val CONN_URL = "mongodb://localhost:27017/"
     private const val DB_NAME = "BlogDB"
     const val USERS = "Users"
 
@@ -29,5 +29,5 @@ object BlogDB {
         return mDatabase!!
     }
 
-    inline fun <reified T> getCollection(collectionName: String): MongoCollection<T> = getDatabase().getCollection(collectionName, T::class.java)
+    inline fun <reified T> getCollection(collectionName: String) : MongoCollection<T> = getDatabase().getCollection(collectionName, T::class.java)
 }

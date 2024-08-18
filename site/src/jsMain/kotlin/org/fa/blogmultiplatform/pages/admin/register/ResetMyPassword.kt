@@ -1,4 +1,4 @@
-package org.fa.blogmultiplatform.pages.admin
+package org.fa.blogmultiplatform.pages.admin.register
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor
@@ -71,7 +71,7 @@ fun ResetMyPassword() {
             VerticalDivider(modifier = dividerStyle.then(Modifier.height(12.px)))
 
             Button(
-                attrs = buttonStyle.then(Modifier.id(Resources.ID.SIGN_IN).onMouseOver {
+                attrs = buttonStyle.then(Modifier.onMouseOver {
                     isFocusedSignIn = true
                 }.onMouseOut { isFocusedSignIn = false }.onClick {
                     isUserExist = !isUserExist

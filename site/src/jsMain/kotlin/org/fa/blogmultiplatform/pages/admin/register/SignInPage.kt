@@ -1,8 +1,6 @@
-package org.fa.blogmultiplatform.pages.admin
+package org.fa.blogmultiplatform.pages.admin.register
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor
 import com.varabyte.kobweb.compose.foundation.layout.Arrangement
 import com.varabyte.kobweb.compose.foundation.layout.Box
@@ -25,16 +23,24 @@ import org.jetbrains.compose.web.css.LineStyle
 import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Input
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
 import com.varabyte.kobweb.core.rememberPageContext
 import com.varabyte.kobweb.silk.components.forms.Checkbox
 import com.varabyte.kobweb.silk.components.navigation.Link
+import kotlinx.browser.document
+import kotlinx.coroutines.launch
+import org.fa.blogmultiplatform.util.UiState
+import org.jetbrains.compose.web.dom.Progress
+import org.w3c.dom.HTMLInputElement
 
-@Page("login")
+@Page("/admin/sign-up")
 @Composable
 fun LoginPage() {
     val pageContext = rememberPageContext()
+    val scope = rememberCoroutineScope()
+
+    val registerRepo = RegisterRepo()
+
+    val signUpState = registerRepo.signUpFlow.collectAsState()
 
     var isRememberMe by remember {
         mutableStateOf(false)
@@ -44,8 +50,8 @@ fun LoginPage() {
         mutableStateOf(false)
     }
 
-    var isUserExist by remember {
-        mutableStateOf(false)
+    var isErrorExist by remember {
+        mutableStateOf("")
     }
 
     val dividerStyle = Modifier.border(
@@ -67,7 +73,8 @@ fun LoginPage() {
     ) {
         Column(
             modifier = Modifier.padding(bottom = 150.px),
-            verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             VerticalDivider(modifier = dividerStyle.then(Modifier.height(80.px)))
 
@@ -75,17 +82,20 @@ fun LoginPage() {
 
             VerticalDivider(modifier = dividerStyle.then(Modifier.height(50.px)))
 
-            Input(type = InputType.Email, attrs = inputStyle.toAttrs {
+            Input(type = InputType.Email, attrs = inputStyle.then(Modifier.id(Resources.ID.INPUT_EMAIL)).toAttrs {
                 attr("placeholder", "Enter your email")
             })
 
-            if (isUserExist) {
-                SpanText(modifier = Modifier.width(350.px).padding(leftRight = 16.px, topBottom = 12.px).background(BlogColors.LT_RED.rgb).color(BlogColors.WHITE.rgb), text = "The user doesn’t exist.")
+            if (isErrorExist.isNotEmpty()) {
+                SpanText(
+                    modifier = Modifier.width(350.px).padding(leftRight = 16.px, topBottom = 12.px)
+                        .background(BlogColors.LT_RED.rgb).color(BlogColors.WHITE.rgb), text = isErrorExist
+                )
             } else {
                 VerticalDivider(modifier = dividerStyle.then(Modifier.height(12.px)))
             }
 
-            Input(type = InputType.Password, attrs = inputStyle.toAttrs {
+            Input(type = InputType.Password, attrs = inputStyle.then(Modifier.id(Resources.ID.INPUT_PASSWORD)).toAttrs {
                 attr("placeholder", "Enter your password")
             })
 
@@ -100,19 +110,37 @@ fun LoginPage() {
             VerticalDivider(modifier = dividerStyle.then(Modifier.height(12.px)))
 
             Button(
-                attrs = buttonStyle.then(Modifier.id(Resources.ID.SIGN_IN).onMouseOver {
+                attrs = buttonStyle.then(Modifier.onMouseOver {
                     isFocusedSignIn = true
-                }.onMouseOut { isFocusedSignIn = false }.onClick { isUserExist = !isUserExist }).toAttrs()
+                }.onMouseOut { isFocusedSignIn = false }.onClick {
+                    val email = document.getElementById(Resources.ID.INPUT_EMAIL) as HTMLInputElement
+                    val password = document.getElementById(Resources.ID.INPUT_PASSWORD) as HTMLInputElement
+
+                    if(email.value.isEmpty() || password.value.isEmpty()) return@onClick
+
+                    scope.launch {
+                        registerRepo.signUp(email.value, password.value)
+                    }
+                }).toAttrs()
             ) {
                 SpanText(
                     modifier = textStyle.then(Modifier.color(if (isFocusedSignIn) BlogColors.PRIMARY.rgb else BlogColors.WHITE.rgb)),
-                    text = "Sign In"
+                    text = "Sign Up"
                 )
             }
 
             VerticalDivider(modifier = dividerStyle.then(Modifier.height(20.px)))
 
             Link(modifier = textStyle, path = "reset-my-password", text = "Reset My Password")
+
+            VerticalDivider(modifier = dividerStyle.then(Modifier.height(20.px)))
+
+            when(signUpState.value) {
+                is UiState.Idle -> { /* NO-OP */ }
+                is UiState.Error -> isErrorExist = (signUpState.value as UiState.Error<Boolean>).exception.message ?: "Empty error message."
+                is UiState.Loading -> Progress(attrs = Modifier.width(350.px).height(16.px).color(BlogColors.PRIMARY.rgb).toAttrs())
+                is UiState.Success -> pageContext.router.navigateTo("home")
+            }
         }
     }
 }

@@ -2,7 +2,8 @@ package org.fa.blogmultiplatform.util
 
 object Resources {
     object ID {
-        const val SIGN_IN = "sign-in"
+        const val INPUT_EMAIL = "input-email"
+        const val INPUT_PASSWORD = "input-password"
     }
 
     object Font {
