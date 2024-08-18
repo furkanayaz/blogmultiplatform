@@ -27,12 +27,9 @@ import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Input
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
-import com.varabyte.kobweb.compose.foundation.layout.Row
 import com.varabyte.kobweb.core.rememberPageContext
 import com.varabyte.kobweb.silk.components.forms.Checkbox
 import com.varabyte.kobweb.silk.components.navigation.Link
-import org.jetbrains.compose.web.dom.Footer
-import org.jetbrains.compose.web.dom.Text
 
 @Page("login")
 @Composable
