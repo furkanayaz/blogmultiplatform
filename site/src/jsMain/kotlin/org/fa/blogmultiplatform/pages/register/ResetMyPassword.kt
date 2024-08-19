@@ -1,4 +1,4 @@
-package org.fa.blogmultiplatform.pages.admin.register
+package org.fa.blogmultiplatform.pages.register
 
 import androidx.compose.runtime.*
 import com.varabyte.kobweb.compose.css.Cursor

@@ -31,6 +31,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.compose.runtime)
+            implementation(libs.coroutines)
         }
 
         jsMain.dependencies {

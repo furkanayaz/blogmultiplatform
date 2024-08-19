@@ -8,67 +8,69 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.fa.blogmultiplatform.api.BlogDB
-import org.fa.blogmultiplatform.models.User
-import org.fa.blogmultiplatform.util.Response
+import org.fa.blogmultiplatform.exceptions.FlowClosedException
+import org.fa.blogmultiplatform.models.SignInUserDTO
+import org.fa.blogmultiplatform.models.SignUpUserDTO
+import org.fa.blogmultiplatform.util.State
 import org.litote.kmongo.and
 import org.litote.kmongo.eq
 
 class UserRepoImpl: UserRepo {
-    override val userCollection: MongoCollection<User>
+    override val signUpUserDTOCollection: MongoCollection<SignUpUserDTO>
         get() = BlogDB.getCollection(BlogDB.USERS)
 
-    override fun signInUser(user: User): Flow<Response<User?>> = callbackFlow {
-        send(Response.Loading())
+    override fun signIn(req: SignInUserDTO): Flow<State<Boolean>> = callbackFlow {
+        send(State.Loading())
 
         try {
-            val response = userCollection.find(
+            val response = signUpUserDTOCollection.find(
                 and(
-                    User::email eq user.email,
-                    User::password eq user.password
+                    SignUpUserDTO::email eq req.email,
+                    SignUpUserDTO::password eq req.password
                 )
             ).awaitFirstOrNull()
 
-            send(Response.Success(response))
+            send(State.Success(response != null))
         } catch (e: Exception) {
             e.printStackTrace()
-            send(Response.Error(e))
+            send(State.Error(e))
         }
 
         awaitClose {
-            launch { send(Response.Error(Exception("Occurred an unknown error."))) }
+            launch { send(State.Error(FlowClosedException())) }
         }
     }
 
-    override fun signUpUser(user: User): Flow<Response<Boolean>> = callbackFlow {
-        send(Response.Loading())
+    override fun signUp(req: SignUpUserDTO): Flow<State<Boolean>> = callbackFlow {
+        send(State.Loading())
 
         try {
-            val response = userCollection.insertOne(user).awaitFirst()
-            send(Response.Success(response.wasAcknowledged()))
+            val response = signUpUserDTOCollection.insertOne(req).awaitFirst()
+            send(State.Success(response.wasAcknowledged()))
         } catch (e: Exception) {
             e.printStackTrace()
-            send(Response.Error(e))
+            send(State.Error(e))
         }
 
         awaitClose {
-            launch { send(Response.Error(Exception("Occurred an unknown error."))) }
+            launch { send(State.Error(FlowClosedException())) }
         }
 
     }
 
-    override fun isUserExists(email: String): Flow<Response<Boolean>> = callbackFlow {
-        send(Response.Loading())
+    override fun isExist(email: String): Flow<State<Boolean>> = callbackFlow {
+        send(State.Loading())
 
         try {
-            val response = userCollection.find(and(User::email eq email)).awaitFirstOrNull()
-            send(Response.Success(response != null))
+            val response = signUpUserDTOCollection.find(and(SignUpUserDTO::email eq email)).awaitFirstOrNull()
+            send(State.Success(response != null))
         } catch (e: Exception) {
             e.printStackTrace()
-            send(Response.Error(e))
+            send(State.Error(e))
         }
 
         awaitClose {
-            launch { send(Response.Error(Exception("Occurred an unknown error."))) }
+            launch { send(State.Error(FlowClosedException())) }
         }
     }
 }

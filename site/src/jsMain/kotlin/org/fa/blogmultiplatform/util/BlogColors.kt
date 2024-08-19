@@ -14,7 +14,7 @@ enum class BlogColors(
     ),
     BACKGROUND(
         hex = "#FFFAFAFA",
-        rgb = rgb(250, 250, 250)
+        rgb = rgb(240, 240, 240)
     ),
     LT_BLACK(
         hex = "#FF494949",
