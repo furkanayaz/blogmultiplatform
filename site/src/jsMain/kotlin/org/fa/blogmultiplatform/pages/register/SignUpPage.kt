@@ -83,7 +83,7 @@ fun SignUpPage() {
             if (register.isErrorExist.isNotEmpty()) {
                 SpanText(
                     modifier = Modifier.width(350.px).padding(leftRight = 16.px, topBottom = 12.px)
-                        .background(BlogColors.LT_RED.rgb).color(BlogColors.WHITE.rgb), text = register.isErrorExist
+                        .background(BlogColors.LT_RED.rgb).color(BlogColors.WHITE.rgb), text = register.isErrorExist.take(100)
                 )
             } else {
                 VerticalDivider(modifier = dividerStyle.then(Modifier.height(12.px)))

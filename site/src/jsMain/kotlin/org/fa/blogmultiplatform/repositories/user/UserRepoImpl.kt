@@ -8,18 +8,27 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.fa.blogmultiplatform.exceptions.EmailValidationException
 import org.fa.blogmultiplatform.models.SignInUserDTO
 import org.fa.blogmultiplatform.models.SignUpUserDTO
+import org.fa.blogmultiplatform.util.EmailValidator
 import org.fa.blogmultiplatform.util.ResponseDTO
 import org.fa.blogmultiplatform.util.State
 
 class UserRepoImpl: UserRepo {
+    override val emailValidator: EmailValidator
+        get() = EmailValidator()
+
     override fun signIn(req: SignInUserDTO): Flow<State<Boolean>> = callbackFlow {
         send(State.Loading())
 
         try {
+            /*if (emailValidator.validateEmail(req.email).not()) {
+                throw EmailValidationException()
+            }*/
+
             val responseAsByteArray = window.api.post(apiPath = "sign-in", body = Json.encodeToString(req).encodeToByteArray())
-            val response = Json.decodeFromString<ResponseDTO<SignUpUserDTO>>(responseAsByteArray.decodeToString())
+            val response = Json.decodeFromString<ResponseDTO<Boolean>>(responseAsByteArray.decodeToString())
 
             if (response.isSuccess) {
                 send(State.Success(response.data != null))
@@ -40,6 +49,10 @@ class UserRepoImpl: UserRepo {
         send(State.Loading())
 
         try {
+            /*if (emailValidator.validateEmail(req.email).not()) {
+                throw EmailValidationException()
+            }*/
+
             val responseAsByteArray = window.api.post(apiPath = "sign-up", body = Json.encodeToString(req).encodeToByteArray())
             val response = Json.decodeFromString<ResponseDTO<Boolean>>(responseAsByteArray.decodeToString())
 
@@ -59,8 +72,6 @@ class UserRepoImpl: UserRepo {
     }
 
     override fun isExist(email: String): Flow<State<Boolean>> = callbackFlow {
-        awaitClose {
-            launch { send(State.Error(Exception("Occurred an unknown error."))) }
-        }
+
     }
 }

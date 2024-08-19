@@ -29,5 +29,5 @@ object BlogDB {
         return mDatabase!!
     }
 
-    inline fun <reified T> getCollection(collectionName: String) : MongoCollection<T> = getDatabase().getCollection(collectionName, T::class.java)
+    fun <T> getCollection(collectionName: String, type: Class<T>) : MongoCollection<T> = getDatabase().getCollection(collectionName, type)
 }

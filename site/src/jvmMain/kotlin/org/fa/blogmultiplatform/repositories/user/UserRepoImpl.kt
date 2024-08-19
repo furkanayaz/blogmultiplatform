@@ -16,14 +16,15 @@ import org.litote.kmongo.and
 import org.litote.kmongo.eq
 
 class UserRepoImpl: UserRepo {
-    override val signUpUserDTOCollection: MongoCollection<SignUpUserDTO>
-        get() = BlogDB.getCollection(BlogDB.USERS)
+    override fun <T> getUserCollection(type: Class<T>): MongoCollection<T> {
+        return BlogDB.getCollection(BlogDB.USERS, type)
+    }
 
     override fun signIn(req: SignInUserDTO): Flow<State<Boolean>> = callbackFlow {
         send(State.Loading())
 
         try {
-            val response = signUpUserDTOCollection.find(
+            val response = getUserCollection(SignInUserDTO::class.java).find(
                 and(
                     SignUpUserDTO::email eq req.email,
                     SignUpUserDTO::password eq req.password
@@ -45,7 +46,7 @@ class UserRepoImpl: UserRepo {
         send(State.Loading())
 
         try {
-            val response = signUpUserDTOCollection.insertOne(req).awaitFirst()
+            val response = getUserCollection(SignUpUserDTO::class.java).insertOne(req).awaitFirst()
             send(State.Success(response.wasAcknowledged()))
         } catch (e: Exception) {
             e.printStackTrace()
@@ -59,18 +60,6 @@ class UserRepoImpl: UserRepo {
     }
 
     override fun isExist(email: String): Flow<State<Boolean>> = callbackFlow {
-        send(State.Loading())
 
-        try {
-            val response = signUpUserDTOCollection.find(and(SignUpUserDTO::email eq email)).awaitFirstOrNull()
-            send(State.Success(response != null))
-        } catch (e: Exception) {
-            e.printStackTrace()
-            send(State.Error(e))
-        }
-
-        awaitClose {
-            launch { send(State.Error(FlowClosedException())) }
-        }
     }
 }
