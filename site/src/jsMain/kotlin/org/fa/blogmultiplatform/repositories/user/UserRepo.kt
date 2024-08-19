@@ -3,11 +3,9 @@ package org.fa.blogmultiplatform.repositories.user
 import kotlinx.coroutines.flow.Flow
 import org.fa.blogmultiplatform.models.SignInUserDTO
 import org.fa.blogmultiplatform.models.SignUpUserDTO
-import org.fa.blogmultiplatform.util.EmailValidator
 import org.fa.blogmultiplatform.util.State
 
 actual interface UserRepo {
-    val emailValidator: EmailValidator
     actual fun signIn(req: SignInUserDTO): Flow<State<Boolean>>
     actual fun signUp(req: SignUpUserDTO): Flow<State<Boolean>>
     actual fun isExist(email: String): Flow<State<Boolean>>

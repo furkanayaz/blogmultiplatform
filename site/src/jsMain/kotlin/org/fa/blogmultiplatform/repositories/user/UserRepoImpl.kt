@@ -8,24 +8,18 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.fa.blogmultiplatform.exceptions.EmailValidationException
+import org.fa.blogmultiplatform.exceptions.UserValidator
 import org.fa.blogmultiplatform.models.SignInUserDTO
 import org.fa.blogmultiplatform.models.SignUpUserDTO
-import org.fa.blogmultiplatform.util.EmailValidator
 import org.fa.blogmultiplatform.util.ResponseDTO
 import org.fa.blogmultiplatform.util.State
 
 class UserRepoImpl: UserRepo {
-    override val emailValidator: EmailValidator
-        get() = EmailValidator()
-
     override fun signIn(req: SignInUserDTO): Flow<State<Boolean>> = callbackFlow {
         send(State.Loading())
 
         try {
-            /*if (emailValidator.validateEmail(req.email).not()) {
-                throw EmailValidationException()
-            }*/
+            UserValidator.validate(null, req.email, req.password)
 
             val responseAsByteArray = window.api.post(apiPath = "sign-in", body = Json.encodeToString(req).encodeToByteArray())
             val response = Json.decodeFromString<ResponseDTO<Boolean>>(responseAsByteArray.decodeToString())
@@ -49,9 +43,7 @@ class UserRepoImpl: UserRepo {
         send(State.Loading())
 
         try {
-            /*if (emailValidator.validateEmail(req.email).not()) {
-                throw EmailValidationException()
-            }*/
+            UserValidator.validate(req.fullName, req.email, req.password)
 
             val responseAsByteArray = window.api.post(apiPath = "sign-up", body = Json.encodeToString(req).encodeToByteArray())
             val response = Json.decodeFromString<ResponseDTO<Boolean>>(responseAsByteArray.decodeToString())
