@@ -21,7 +21,7 @@ object BlogDB {
         return mClient!!
     }
 
-    fun getDatabase(): MongoDatabase {
+    private fun getDatabase(): MongoDatabase {
         if (mDatabase == null) {
             mDatabase = getClient().getDatabase(DB_NAME)
         }

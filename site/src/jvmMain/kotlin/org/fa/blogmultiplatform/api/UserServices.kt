@@ -5,6 +5,7 @@ import com.varabyte.kobweb.api.ApiContext
 import com.varabyte.kobweb.api.data.getValue
 import com.varabyte.kobweb.api.http.HttpMethod
 import com.varabyte.kobweb.api.http.setBodyText
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.fa.blogmultiplatform.models.SignInUserDTO
@@ -35,35 +36,34 @@ suspend fun signIn(context: ApiContext) {
             throw IllegalArgumentException(message)
         }
         val response = userRepo.signIn(req)
-        response.collect {
-            when (it) {
-                is State.Error -> {
-                    context.res.status = 404
-                    context.res.setBodyText(
-                        Json.encodeToString(
-                            ResponseDTO(
-                                isSuccess = true,
-                                status = 200,
-                                data = false,
-                                errorMessages = listOf(it.exception.message ?: "null error message")
-                            )
+
+        when (val result = response.first()) {
+            is State.Error -> {
+                context.res.status = 404
+                context.res.setBodyText(
+                    Json.encodeToString(
+                        ResponseDTO(
+                            isSuccess = true,
+                            status = 200,
+                            data = false,
+                            errorMessages = listOf(result.exception.message ?: "null error message")
                         )
                     )
-                }
+                )
+            }
 
-                is State.Success -> {
-                    context.res.status = 200
-                    context.res.setBodyText(
-                        Json.encodeToString(
-                            ResponseDTO(
-                                isSuccess = true, status = 200, data = true, errorMessages = null
-                            )
+            is State.Success -> {
+                context.res.status = 200
+                context.res.setBodyText(
+                    Json.encodeToString(
+                        ResponseDTO(
+                            isSuccess = true, status = 200, data = true, errorMessages = null
                         )
                     )
-                }
+                )
+            }
 
-                else -> { /* NO-OP */
-                }
+            else -> { /* NO-OP */
             }
         }
     } else {
@@ -103,32 +103,30 @@ suspend fun signUp(context: ApiContext) {
         }
         val response = userRepo.signUp(req)
 
-        response.collect {
-            when (it) {
-                is State.Error -> {
-                    context.res.status = 404
-                    context.res.setBodyText(
-                        Json.encodeToString(
-                            ResponseDTO(
-                                isSuccess = true, status = 200, data = false, errorMessages = null
-                            )
+        when (val result = response.first()) {
+            is State.Error -> {
+                context.res.status = 404
+                context.res.setBodyText(
+                    Json.encodeToString(
+                        ResponseDTO(
+                            isSuccess = true, status = 200, data = false, errorMessages = listOf(result.exception.message ?: "null error message")
                         )
                     )
-                }
+                )
+            }
 
-                is State.Success -> {
-                    context.res.status = 200
-                    context.res.setBodyText(
-                        Json.encodeToString(
-                            ResponseDTO(
-                                isSuccess = true, status = 200, data = true, errorMessages = null
-                            )
+            is State.Success -> {
+                context.res.status = 200
+                context.res.setBodyText(
+                    Json.encodeToString(
+                        ResponseDTO(
+                            isSuccess = true, status = 200, data = true, errorMessages = null
                         )
                     )
-                }
+                )
+            }
 
-                else -> { /* NO-OP */
-                }
+            else -> { /* NO-OP */
             }
         }
     } else {

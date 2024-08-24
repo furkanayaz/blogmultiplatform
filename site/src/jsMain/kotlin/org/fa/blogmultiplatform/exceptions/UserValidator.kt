@@ -9,7 +9,10 @@ sealed class UserValidator(override val message: String): Exception(message) {
 
     companion object {
         fun validate(fullName: String?, email: String, password: String) {
-            if (fullName != null && fullName.length < 6)
+            if (fullName == null)
+                throw FullNameValidationException()
+
+            if (fullName.length < 6)
                 throw FullNameValidationException()
 
             if (EmailValidator().validateEmail(email).not())
